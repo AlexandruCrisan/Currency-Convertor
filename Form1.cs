@@ -47,53 +47,83 @@ namespace CurrencyConvertor {
                 if ( ron_btn.Checked == true ) {
                     ron_value.Text = ron + " : " + value_to_be_converted.ToString();
 
-                    double value_converted;
-                    value_converted = get_conversion(ron, euro);
-                    Console.WriteLine("valoare dupa conv : " + value_converted);
-                    euro_value.Text = "EUR : " + value_converted.ToString();
-
-                    value_converted = get_conversion(ron, usd);
-                    Console.WriteLine("valoare dupa conv : " + value_converted);
-                    dolar_value.Text = "USD : " + value_converted.ToString();
+                    assign(ron, euro, usd);
 
                 } else if (euro_btn.Checked == true ) {
                     euro_value.Text = euro + " : " + value_to_be_converted.ToString();
 
-                    double value_converted;
-                    value_converted = get_conversion(euro, ron);
-                    Console.WriteLine("valoare dupa conv : " + value_converted);
-                    ron_value.Text = "RON : " + value_converted.ToString();
-
-                    value_converted = get_conversion(euro, usd);
-                    Console.WriteLine("valoare dupa conv : " + value_converted);
-                    dolar_value.Text = "USD : " + value_converted.ToString();
+                    assign(euro, ron, usd);
                 } else if (usd_btn.Checked == true ) {
                     dolar_value.Text = usd + " : " + value_to_be_converted.ToString();
 
-                    double value_converted;
-                    value_converted = get_conversion(usd, ron);
-                    Console.WriteLine("valoare dupa conv : " + value_converted);
-                    ron_value.Text = "RON : " + value_converted.ToString();
-
-                    value_converted = get_conversion(usd, euro);
-                    Console.WriteLine("valoare dupa conv : " + value_converted);
-                    euro_value.Text = "USD : " + value_converted.ToString();
+                    assign(usd, euro, ron);
                 }
             }
         }
 
         public double get_conversion (string conv1, string conv2) {
-
             var web_client = new WebClient();
 
             complete_url = base_link + $"{conv1}_{conv2}" + end + api_key;
             var json_data = web_client.DownloadString(complete_url);
-            dynamic valori = JObject.Parse(json_data);
-
+            var valori = JObject.Parse(json_data);
+            
             double val = Convert.ToDouble(valori[$"{conv1}_{conv2}"], System.Globalization.CultureInfo.InvariantCulture);
             val *= value_to_be_converted;
 
             return val;
+        }
+
+        public void assign (string from, string to1, string to2) {
+            double value_converted1;
+            double value_converted2;
+
+            value_converted1 = get_conversion(from, to1);
+            value_converted2 = get_conversion(from, to2);
+
+            switch ( from ) {
+                case "RON":
+                    switch ( to1 ) {
+                        case "EUR":
+                        euro_value.Text = "EUR : " + value_converted1.ToString();
+                        dolar_value.Text = "USD : " + value_converted2.ToString();
+                        break;
+
+                        case "USD":
+                        dolar_value.Text = "USD : " + value_converted1.ToString();
+                        euro_value.Text = "EUR : " + value_converted2.ToString();
+                        break;
+                    }
+                break;
+
+                case "EUR":
+                    switch ( to1 ) {
+                        case "RON":
+                        ron_value.Text = "RON : " + value_converted1.ToString();
+                        dolar_value.Text = "USD : " + value_converted2.ToString();
+                        break;
+
+                        case "USD":
+                        ron_value.Text = "RON : " + value_converted2.ToString();
+                        dolar_value.Text = "USD : " + value_converted1.ToString();
+                        break;
+                    }
+                break;
+
+                case "USD":
+                    switch( to1 ) {
+                        case "RON":
+                            ron_value.Text = "RON : " + value_converted1.ToString();
+                            euro_value.Text = "EUR : " + value_converted2.ToString();
+                        break;
+
+                        case "EUR":
+                            ron_value.Text = "RON : " + value_converted2.ToString();
+                            euro_value.Text = "EUR : " + value_converted1.ToString();
+                        break;
+                    }
+                break;
+            }
         }
     }
 }
